@@ -66,34 +66,6 @@ run_depletion(
 )
 ```
 
-Set `nuclides=("Xe135",)` for a single-nuclide absorber, or use an element
-symbol such as `nuclides=("B",)` to scale all isotopes of that element already
-present in the control material. Multiple symbols and isotope names can also
-be mixed in the tuple. With the default `target_mode="beginning"`,
-`target_keff` is the keff target at the start of each depletion step. Feedback
-uses transport calculations to search the concentration; only the selected
-case is used for that depletion step. The selected case is rerun using the
-model's original transport statistics. Search statistics are optional; when
-omitted, model settings are used for initial trials and increased for
-near-target refinements.
+## Citation
 
-`FeedbackControl` starts each new depletion step near the preceding step's
-selected concentration, expands the bracket if needed, then uses a safeguarded
-secant proposal with bisection fallback. Near-target trials can be rerun with
-increasing particle and batch counts. The CSV records every trial's keff and
-reported standard deviation, the selected result, remaining error, and
-stopping reason. The search assumes keff changes monotonically with
-concentration across the configured interval; validate that assumption and
-the atom-density versus concentration relationship for each reactor and
-species.
-
-By default, `target_keff` applies at the beginning of each step. Set
-`target_mode="end"` to estimate the beginning-of-step target needed to reach
-the requested end-of-step keff. This mode filters measured step losses and
-requires `integrator="predictor"`. Configure `expected_step_keff_loss` from a
-pilot calculation and tune its clipping range and `loss_filter_alpha` for the
-reactor and timestep schedule.
-
-See the [detailed API reference](https://qyxen.github.io/openmc-depletion-feedback/api.html)
-for all function parameters, feedback settings, validation rules, and outputs.
-
+Citation metadata is provided in [`CITATION.cff`](CITATION.cff).
