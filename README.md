@@ -13,6 +13,11 @@ Install OpenMC and its nuclear data according to the [OpenMC documentation](http
 pip install .
 ```
 
+Install the released package with:
+```bash
+pip install openmc-depletion-feedback
+```
+
 ## Documentation
 
 The full user guide can be found here: [openmc-depletion-feedback documentation](https://qyxen.github.io/openmc-depletion-feedback/)
