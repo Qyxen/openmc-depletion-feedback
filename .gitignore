@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environments and local configuration
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+
+# Packaging and build output
+build/
+dist/
+*.egg-info/
+
+# Sphinx output
+docs/_build/
+
+# OpenMC-generated transport output
+statepoint.*.h5
+source.*.h5
+summary.h5
+tallies.out
+plots.xml
+plot_*.png
+*.vtk
+
+# Depletion results and feedback logs
+depletion_results.h5
+depletion_results/
+feedback_history.csv
+boron_history.csv
+
+# Editor and operating-system files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
