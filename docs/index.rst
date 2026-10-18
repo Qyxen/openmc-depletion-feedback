@@ -11,4 +11,5 @@ same steps to another reactor and soluble absorber.
 
    smr-example
    theory
+   api
 
