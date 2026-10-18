@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this software in your work, please cite it as follows."
+type: software
+title: "OpenMC Depletion Feedback"
+abstract: >-
+  An importable Python package for running transport-coupled OpenMC depletion
+  calculations with optional soluble-species reactivity feedback. It supports
+  concentration searches over user-defined nuclides, uncertainty-aware
+  refinement, warm starts, and beginning- or estimated end-of-step keff targets.
+authors:
+  - family-names: "Kabiraj"
+    given-names: "Hridoy"
+    orcid: "https://orcid.org/0009-0001-4737-710X"
+version: 0.1.0

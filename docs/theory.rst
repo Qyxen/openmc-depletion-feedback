@@ -166,11 +166,22 @@ Bounded search
 --------------
 
 At each feedback call, the controller calculates :math:`k_{\mathrm{eff}}` at
-the lower and upper concentration bounds. If the target is bracketed, it
-repeatedly tests the midpoint and narrows the interval. Each trial is a new
-OpenMC transport solve at the same nuclide inventory, with only the selected
-absorber densities changed. No trial depletion solve is performed. The
-search stops when the calculated keff error is within ``keff_tolerance``, the
+On the first call, it searches the full concentration range. On later calls,
+it starts with an interval around the previous selected concentration. If
+that interval does not bracket the target, it expands geometrically until it
+does or reaches the configured full range. This warm start often reduces
+transport solves when adjacent depletion steps need similar concentrations;
+it still falls back to the full range if the target has moved farther.
+
+Each trial is a new OpenMC transport solve at the same nuclide inventory,
+with only the selected absorber densities changed. No trial depletion solve
+is performed. Once a bracket is available, the search proposes a safeguarded
+secant estimate when it lies safely inside the bracket, and otherwise uses
+the midpoint. The secant estimate uses a straight-line approximation between
+the endpoint results; the bracket and midpoint fallback preserve the
+robustness of bisection when that approximation is poor.
+
+The search stops when its uncertainty-aware keff criterion is met, the
 concentration interval is within ``tolerance``, or ``max_iterations`` is
 reached. It then runs the selected concentration again using the model's
 original transport statistics; those reaction rates are returned to the
@@ -184,15 +195,15 @@ behavior inside the interval. Monte Carlo uncertainty can also make measured
 trial values appear locally non-monotonic, especially when search runs use
 few histories.
 
-If both bounds are on the same side of the target, the controller selects the
-endpoint whose calculated keff is closer and records ``lower bound`` or
-``upper bound``. The target is then outside the reachable range for that
-state and those bounds. For a bracketed search, the history status is
-``controlled`` even if ``max_iterations`` is reached before either numerical
-tolerance is met; inspect the selected keff and concentration to judge the
-remaining error. The search assumes keff varies monotonically with
-concentration over the configured interval. Check this assumption for each
-model and absorber.
+If both full-range bounds are on the same side of the target, the controller
+selects the endpoint whose calculated keff is closer. It records a
+``lower_bound`` or ``upper_bound`` stopping reason, and the target is not
+reachable within that range for the current state. For a bracketed search,
+history distinguishes ``target_met`` from ``target_unmet`` and records the
+stopping reason, including iteration limit and uncertainty limit. The
+selected result's remaining absolute keff error is included in the history.
+The search assumes keff varies monotonically with concentration over the
+configured interval. Check this assumption for each model and absorber.
 
 Trial searches can use reduced particle, batch, and inactive-generation
 settings through ``search_particles``, ``search_batches``, and
@@ -202,33 +213,73 @@ also increase Monte Carlo uncertainty in the estimated keff and selected
 concentration. The final selected transport solve restores the particle,
 batch, and inactive settings captured from the model when depletion starts.
 
+When a trial's nominal keff is within ``keff_tolerance`` but its uncertainty
+is too large to establish the target, the controller repeats that candidate
+with progressively higher particle and batch counts. The counts are
+multiplied by ``refinement_factor`` for each level, up to
+``max_search_refinements``. A target is reported as met only when
+
+.. math::
+
+   |\hat{k}_{\mathrm{eff}} - k_{\mathrm{target}}|
+   + z\,\sigma_k \leq \varepsilon_k,
+
+where :math:`\hat{k}_{\mathrm{eff}}` is the estimated keff,
+:math:`\sigma_k` is its reported standard deviation, :math:`z` is
+``confidence_z``, and :math:`\varepsilon_k` is ``keff_tolerance``. This is a
+conservative uncertainty check under the usual approximately normal
+interpretation of Monte Carlo estimates. Increasing histories reduces
+sampling uncertainty but does not address nuclear-data or model uncertainty.
+
 ``keff_tolerance`` and ``tolerance`` measure different things. The former is
 an absolute difference in keff; the latter is a width in the user-defined
-concentration units. Reaching either condition stops the search. Increasing
-``max_iterations`` permits additional bisection steps but increases the
-number of transport calculations. Search tolerances smaller than the
-statistical uncertainty in trial keff do not ensure a correspondingly
-accurate physical concentration.
+concentration units. ``warm_start_width`` controls the initial local bracket
+around the prior concentration, and ``warm_start_expansion`` controls its
+geometric growth. ``use_secant`` enables the safeguarded secant proposal;
+setting it to ``False`` uses bisection throughout. Increasing
+``max_iterations`` or ``max_search_refinements`` permits additional transport
+calculations. Search tolerances smaller than the statistical uncertainty in
+trial keff do not ensure a correspondingly accurate physical concentration.
+
+The history CSV contains one row for each bracket, search, refinement, and
+final selected transport solve. It records concentration, estimated keff,
+reported standard deviation, current bracket, search settings, target error,
+whether that solve supplied the selected result, and final stopping reason.
 
 Timestep target interpretation
 ------------------------------
 
-With the predictor integrator, the feedback target applies to the transport
-calculation at the beginning of each depletion step. It is therefore a
-beginning-of-step target; the controller does not predict the end-of-step
-keff. During the interval, fuel depletion, fission-product buildup, and
-decay change reactivity. If an end-of-step condition matters, use shorter
-steps or calibrate a beginning-of-step target against the expected loss for
-the reactor, power, and schedule. Such calibration is external to this
-package.
+With ``target_mode="beginning"`` (the default), ``target_keff`` applies to
+the transport calculation at the beginning of each depletion step. It is a
+beginning-of-step target; the controller does not predict end-of-step keff.
+
+With ``target_mode="end"``, ``target_keff`` is interpreted as a desired
+end-of-step keff. The controller adds an estimate of the keff loss over the
+upcoming interval to form its beginning-of-step target. After each predictor
+step, it evaluates the new composition using the prior step's absorber
+concentration, measures the keff loss, clips that measurement to the
+configured range, and updates the estimate with an exponential filter:
+
+.. math::
+
+   L_{n+1} = (1-\alpha)L_n + \alpha\,\Delta k_n.
+
+Here :math:`L_n` is the filtered expected step loss, :math:`\Delta k_n` is
+the measured loss, and :math:`\alpha` is ``loss_filter_alpha``. The initial
+estimate is ``expected_step_keff_loss``; the clipping interval is set by
+``minimum_step_keff_loss`` and ``maximum_step_keff_loss``. This compensation
+currently requires the predictor integrator because it assumes one operator
+feedback call per depletion step. It remains an estimate: power changes,
+timestep changes, and strong spectrum or composition effects can make past
+loss a poor predictor of the next step.
 
 Output and reproducibility
 --------------------------
 
 OpenMC writes depletion results to ``output_dir``. With feedback enabled,
-``history_file`` records the step number, selected concentration, resulting
-keff, target keff, and whether the target was controlled or a bound was
-selected. Archive the input model, cross-section and chain data identifiers,
+``history_file`` records every evaluated concentration and keff estimate,
+its reported uncertainty, the final selection and stopping reason. Archive
+the input model, cross-section and chain data identifiers,
 power, timestep schedule, controller configuration, and transport settings
 alongside the results when comparing calculations.
 

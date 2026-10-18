@@ -15,27 +15,7 @@ pip install .
 
 ## Documentation
 
-The Sphinx documentation source is in `docs/` and uses reStructuredText
-(`.rst`). To build the website locally:
-
-```bash
-python -m pip install -r docs/requirements.txt
-sphinx-build -b html docs docs/_build/html
-```
-
-The generated site is in `docs/_build/html`. The GitHub Actions workflow in
-`.github/workflows/docs.yml` builds and publishes it with GitHub Pages when
-Pages is configured to use GitHub Actions.
-
-Run the unit tests with:
-
-```bash
-python -m pip install -e ".[test]"
-pytest
-```
-
-The feedback-search tests use deterministic keff values and do not launch
-OpenMC transport simulations.
+The full user guide can be found here: [openmc-depletion-feedback documentation](https://qyxen.github.io/openmc-depletion-feedback/)
 
 ## Ordinary depletion
 
@@ -86,31 +66,6 @@ run_depletion(
 )
 ```
 
-Set `nuclides=("Xe135",)` for a single-nuclide absorber, or use an element
-symbol such as `nuclides=("B",)` to scale all isotopes of that element already
-present in the control material. Multiple symbols and isotope names can also
-be mixed in the tuple. The target is the keff during the transport solve at
-the start of each depletion step. Feedback uses transport calculations to
-search the concentration; only the selected case is used for that depletion
-step. The selected case is rerun using the model's original transport
-statistics. Search statistics are optional; when omitted, model settings are
-used throughout.
+## Citation
 
-`FeedbackControl` accepts a concentration interval, interval tolerance,
-keff tolerance, iteration limit, and `history_file` path. It writes the
-selected concentration, keff, target, and bound/controlled status to CSV.
-Concentration feedback assumes keff changes monotonically between the
-configured endpoints. Validate that assumption and the atom-density versus
-concentration relationship for each reactor and species.
-
-## API
-
-```python
-run_depletion(model, timesteps, power, chain_file, *, timestep_units="d",
-              integrator="predictor", control=None, output_dir=".")
-```
-
-The supported integrators are `predictor`, `cecm`, and `epc-rk4`. All
-depletable materials in the model need positive volumes. The package does not
-construct reactor geometry or choose nuclear data on the user's behalf.
-
+Citation metadata is provided in [`CITATION.cff`](CITATION.cff).

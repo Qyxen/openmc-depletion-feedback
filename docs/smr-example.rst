@@ -63,9 +63,13 @@ hydrogen, oxygen, and other coolant nuclides are left unchanged.
        minimum=0.0,
        maximum=1000.0,
        target_keff=1.005,
+       target_mode="end",  # omit to target beginning-of-step keff
+       expected_step_keff_loss=0.01,  # calibrate with a pilot run
        search_particles=35000,
        search_batches=50,
        search_inactive=7,
+       warm_start_width=100.0,
+       max_search_refinements=2,
        tolerance=50.0,          # ppm interval width
        keff_tolerance=0.0005,
        max_iterations=10,
@@ -115,7 +119,11 @@ material densities. The feedback controller scales those listed nuclide
 densities linearly; it does not convert between concentration units or
 rebuild chemical compounds.
 
-The target is the keff at the beginning of each depletion step. If the desired
-operating policy uses an end-of-step target, choose a suitable BOC target or
-shorten the timestep; this example does not estimate future reactivity loss.
+This example sets ``target_mode="end"``. The configured ``target_keff`` is the
+desired end-of-step keff; the controller estimates the beginning-of-step
+target by adding the filtered expected step loss. If you omit ``target_mode``
+or set it to ``"beginning"``, ``target_keff`` applies directly to the
+beginning-of-step transport calculation instead. End-of-step compensation is
+an estimate, so calibrate it for your timestep schedule and operating
+conditions.
 
