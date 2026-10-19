@@ -47,14 +47,14 @@ object directly to ``run_depletion`` instead.
 2. Configure boron feedback
 ---------------------------
 
-Install ``openmc-depletion-feedback`` in your OpenMC environment, then create a
+Install ``openmc-feedbacks`` in your OpenMC environment, then create a
 ``FeedbackControl``. The element symbol ``B`` selects all boron isotopes found
 in the named coolant material, so B10 and B11 are adjusted together while
 hydrogen, oxygen, and other coolant nuclides are left unchanged.
 
 .. code-block:: python
 
-   from openmc_depletion_feedback import FeedbackControl, run_depletion
+   from openmc_feedbacks import FeedbackControl, run_depletion
 
    boron_feedback = FeedbackControl(
        material_name="Coolant with 1000 ppm boron",

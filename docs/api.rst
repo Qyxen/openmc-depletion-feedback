@@ -2,7 +2,7 @@ API reference
 =============
 
 This page documents the public objects exported by
-``openmc_depletion_feedback``. The package does not create reactor geometry,
+``openmc_feedbacks``. The package does not create reactor geometry,
 materials, or nuclear data. Supply a prepared OpenMC model, depletion chain,
 cross-section configuration, power, and time schedule.
 

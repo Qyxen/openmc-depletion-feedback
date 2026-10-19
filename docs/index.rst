@@ -1,4 +1,4 @@
-openmc-depletion-feedback documentation
+openmc-feedbacks documentation
 =======================================
 
 Use the :doc:`smr-example` to configure an OpenMC model, enable

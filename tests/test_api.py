@@ -3,7 +3,7 @@ from pathlib import Path
 import openmc
 import openmc.deplete as deplete
 
-from openmc_depletion_feedback.api import run_depletion
+from openmc_feedbacks.api import run_depletion
 
 
 def test_run_depletion_passes_results_path_and_sets_operator_output_dir(
