@@ -323,14 +323,20 @@ def run_depletion(model, timesteps, power, chain_file, *, timestep_units="d",
         raise ValueError(f"Unsupported integrator {integrator!r}; choose {', '.join(integrators)}") from exc
     if control is not None and control.target_mode == "end" and integrator_name != "predictor":
         raise ValueError("target_mode='end' currently requires integrator='predictor'")
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    output_dir = Path(output_dir).expanduser().resolve()
+    output_dir.mkdir(parents=True, exist_ok=True)
     operator_cls = _FeedbackOperator if control is not None else deplete.CoupledOperator
     if control is None:
         operator = operator_cls(model, chain_file=str(chain_file))
     else:
         operator = operator_cls(model, chain_file=str(chain_file), control=control)
+    # OpenMC runs the integrator inside the operator's output directory.
+    # Keep this absolute so relative user paths behave consistently, and put
+    # the feedback CSV alongside depletion results.
+    operator.output_dir = output_dir
     calculation = integrator_cls(operator, timesteps, power=power,
                                  timestep_units=timestep_units)
-    calculation.integrate(output_dir=str(output_dir))
+    results_path = output_dir / "depletion_results.h5"
+    calculation.integrate(path=str(results_path))
     return calculation
 

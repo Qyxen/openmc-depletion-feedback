@@ -2,7 +2,7 @@ name: Documentation
 
 on:
   push:
-    branches: [main]
+    branches: [release]
     paths:
       - "docs/**"
       - ".github/workflows/docs.yml"
