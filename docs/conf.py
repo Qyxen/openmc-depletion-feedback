@@ -1,5 +1,5 @@
-project = "openmc-depletion-feedback"
-author = "openmc-depletion-feedback contributors"
+project = "openmc-feedbacks"
+author = "openmc-feedbacks contributors"
 release = "0.1.0"
 
 extensions = ["sphinx.ext.mathjax"]

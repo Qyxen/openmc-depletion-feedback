@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use this software in your work, please cite it as follows."
 type: software
-title: "OpenMC Depletion Feedback"
+title: "OpenMC Feedbacks"
 abstract: >-
   An importable Python package for running transport-coupled OpenMC depletion
   calculations with optional soluble-species reactivity feedback. It supports
