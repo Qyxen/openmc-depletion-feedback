@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "openmc-depletion-feedback"
+name = "openmc-feedbacks"
 version = "0.1.0"
 description = "Reusable OpenMC depletion simulations with optional soluble-species feedback control"
 readme = "README.md"

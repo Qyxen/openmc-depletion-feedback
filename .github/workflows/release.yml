@@ -46,7 +46,7 @@ jobs:
     needs: build
     environment:
       name: pypi
-      url: https://pypi.org/p/openmc-depletion-feedback
+          url: https://pypi.org/p/openmc-feedbacks
     permissions:
       id-token: write
     steps:

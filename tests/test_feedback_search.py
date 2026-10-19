@@ -3,8 +3,8 @@ from types import MethodType, SimpleNamespace
 
 import pytest
 
-from openmc_depletion_feedback import FeedbackControl
-from openmc_depletion_feedback.api import _FeedbackOperator, _keff_stats, _nominal_keff
+from openmc_feedbacks import FeedbackControl
+from openmc_feedbacks.api import _FeedbackOperator, _keff_stats, _nominal_keff
 
 
 def make_operator(tmp_path, keff_at_concentration, **control_options):

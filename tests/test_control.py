@@ -1,6 +1,6 @@
 import pytest
 
-from openmc_depletion_feedback import FeedbackControl
+from openmc_feedbacks import FeedbackControl
 
 
 def make_control(**overrides):

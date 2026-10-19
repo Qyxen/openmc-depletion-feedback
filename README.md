@@ -1,4 +1,4 @@
-# openmc-depletion-feedback
+# openmc-feedbacks
 
 An importable wrapper around OpenMC depletion. The package accepts a prepared
 OpenMC `Model` or a directory containing OpenMC XML inputs and runs depletion
@@ -15,18 +15,18 @@ pip install .
 
 Install the released package with:
 ```bash
-pip install openmc-depletion-feedback
+pip install openmc-feedbacks
 ```
 
 ## Documentation
 
-The full user guide can be found here: [openmc-depletion-feedback documentation](https://qyxen.github.io/openmc-depletion-feedback/)
+The full user guide can be found here: [openmc-feedbacks documentation](https://qyxen.github.io/openmc-feedbacks/)
 
 ## Ordinary depletion
 
 ```python
 import openmc
-from openmc_depletion_feedback import run_depletion
+from openmc_feedbacks import run_depletion
 
 run_depletion(
     model="model",  # directory containing geometry.xml, materials.xml, settings.xml, etc.
@@ -48,7 +48,7 @@ controller can represent ppm boron, ppm gadolinium, or another soluble
 absorber when the reference material has been prepared consistently.
 
 ```python
-from openmc_depletion_feedback import FeedbackControl, run_depletion
+from openmc_feedbacks import FeedbackControl, run_depletion
 
 control = FeedbackControl(
     material_name="Primary coolant",
